@@ -2,49 +2,96 @@
 
 **에이전트 입갤. 설명은 디시체로, 코드는 그대로.**
 
-Codex의 설명·진행 보고·질문·최종 리뷰를 짧고 직설적인 디시인사이드식 반말로 표현하는 응답 스타일 플러그인입니다.
+입갤은 로컬 Codex의 기술 설명, 진행 보고, 대화 중 질문과 최종 리뷰를 짧고 직설적인 디시인사이드식 한국어 반말로 쓰도록 돕는 실험용 플러그인입니다. 의미, 근거, 조건과 검증 상태는 유지합니다.
 
-## 어떤 느낌인가
+[빠른 시작](#빠른-시작) · [LLM에게 설치 맡기기](#llm에게-설치-맡기기) · [사용 가이드](#사용-가이드) · [AS-IS / TO-BE](#as-is--to-be) · [문제 해결](#문제-해결)
 
-**일반 설명**
+## 빠른 시작
 
-> PKCE는 인증 코드를 탈취한 공격자가 해당 코드를 토큰으로 교환하지 못하도록 보호하는 방식입니다.
+Codex 로컬 세션에서 사용합니다. 훅이 실행되는 환경의 `PATH`에 `node`가 필요합니다. npm 패키지 설치와 빌드는 필요 없습니다. macOS에서 Codex `0.167.0-alpha.3.2`와 Node.js `24.15.0`을 확인했습니다. 최소 지원 버전과 다른 운영체제는 미확인입니다.
 
-**입갤 스타일 예시**
+### CLI 설치
 
-> PKCE는 ‘로그인 코드만 주워도 토큰은 못 받게 하는 장치’임.
-> 앱이 비밀값을 하나 만들고, 처음에는 그 해시만 서버에 보내둠.
-> 나중에 코드를 토큰으로 바꿀 때 원본을 내밀어서 대조하는 거임. 교환권만 주웠다고 받아가는 게 아님 ㅋㅋ
+먼저 [설치 전 확인](install.md#설치-전-확인)에서 같은 이름의 마켓플레이스 출처와 기존 설치를 확인하세요. 이미 공식 출처에서 설치했다면 그 사본을 사용하세요.
 
-위 문장은 목표로 하는 말투의 예시입니다.
+1. `ipgael-local`이 등록되어 있지 않을 때만 GitHub 마켓플레이스를 추가하세요.
 
-## 적용 범위
+   ```sh
+   codex plugin marketplace add JeremyDev87/ipgael --ref main --json
+   ```
 
-- 일반 기술 설명, 진행 보고, 질문, 최종 리뷰의 결론을 먼저 말합니다. `ㅇㅋ`, `ㅋㅋ`, `~임`, `~함` 같은 표현은 문맥에 맞을 때만 씁니다.
-- 상위 지침과 프로젝트 규칙, 사용자가 지정한 언어·말투·출력 형식을 우선합니다. 설명의 의미, 근거, 조건, 불확실성, 검증 상태를 유지합니다.
-- `JSON만`, `코드만`, `정확히 OK만`처럼 전체 출력의 형식이 지정되면 그 형식을 따릅니다. 코드, 명령어, 로그, 식별자, 오류 메시지, 직접 인용과 제공된 게시용 원문은 그대로 둡니다. 새 PR 본문과 커밋 메시지는 요청과 저장소 형식을 따릅니다.
+2. 등록 결과에서 `ipgael-local`을 확인하고, 아직 설치되지 않았을 때만 입갤을 추가하세요.
 
-## macOS에서 로컬 설치
+   ```sh
+   codex plugin add ipgael@ipgael-local --json
+   ```
 
-Codex 데스크톱 로컬 세션과 훅 실행 환경의 `PATH`에 있는 `node`가 필요합니다. 추가 npm 패키지는 필요하지 않습니다.
+3. `codex plugin list --marketplace ipgael-local --json`에서 설치와 활성화 상태를 확인한 뒤 [훅 검토](#훅-검토와-첫-실행)로 이동하세요. 기존 설치를 의도적으로 꺼뒀다면 그 상태를 유지하세요.
 
-1. 이 저장소를 받아 Codex 데스크톱의 로컬 프로젝트로 열고 앱을 다시 시작합니다. 저장소의 [로컬 마켓플레이스](.agents/plugins/marketplace.json)가 저장소 루트의 플러그인을 가리킵니다. [로컬 플러그인 설치 문서](https://developers.openai.com/plugins/build/plugins#install-a-local-plugin-manually)
-2. `Plugins`에서 `ipgael`을 찾아 수동으로 설치하고 활성화합니다. [플러그인 사용 문서](https://learn.chatgpt.com/docs/plugins#use-and-install-plugins)
-3. 작성창의 **Review hooks** 또는 **Settings → Hooks**에서 `ipgael`의 `SessionStart` 명령과 [실행 스크립트](hooks/session-start.mjs)를 확인하고, 실행할 훅을 신뢰합니다. 신뢰하지 않은 훅은 Codex가 건너뜁니다. [플러그인 훅 검토 문서](https://learn.chatgpt.com/docs/hooks#plugin-bundled-hooks)
-4. 새 로컬 대화에서 일반 기술 질문으로 말투를 확인합니다.
+### Desktop 수동 설치
 
-현재 대화에서 잠시 끄려면 `이 대화에서 입갤 말투 꺼줘`, 다시 쓰려면 `이 대화에서 입갤 말투 다시 켜줘`라고 요청하세요. 계속 끄려면 `Plugins`에서 `ipgael`을 비활성화하고 새 대화를 시작하세요. 이미 받은 정책은 기존 대화 문맥에 남을 수 있습니다. 대화 안에서 한 off 요청이 문맥 압축 후에도 유지되는지는 검증이 필요합니다. [로컬 플러그인 활성화 문서](https://developers.openai.com/plugins/build/plugins#how-local-marketplaces-work)
+1. [공식 저장소](https://github.com/JeremyDev87/ipgael)의 `main` 사본을 로컬에 준비하세요. 이미 같은 이름으로 GitHub 마켓플레이스를 등록했다면 해당 출처에서 계속 진행하세요.
+2. 저장소를 Codex Desktop에서 로컬 프로젝트로 열고 앱을 다시 시작하세요. 앱이 저장소의 [마켓플레이스](.agents/plugins/marketplace.json)를 읽습니다.
+3. **Plugins**에서 **입갤 로컬**의 **입갤 · ipgael**을 선택해 설치하고, 사용할 프로젝트에서 활성화를 확인하세요. 이 경로는 Codex CLI 없이 진행할 수 있습니다. [공식 로컬 설치 문서](https://developers.openai.com/plugins/build/plugins#install-a-local-plugin-manually)
+
+### 훅 검토와 첫 실행
+
+설치와 활성화를 확인한 뒤 `SessionStart` 훅의 [정의](hooks/hooks.json)와 [실행 스크립트](hooks/session-start.mjs)를 검토하세요. CLI에서는 `/hooks`, Desktop에서는 입력창의 **Review hooks** 또는 **Settings → Hooks**를 엽니다. 사용자가 훅을 신뢰해야 실행됩니다. [공식 훅 검토 문서](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks)
+
+새 로컬 대화를 열어 `Redis 캐시 만료 시간을 왜 설정해?`를 보내세요. 다음 턴에 `그럼 만료된 뒤 요청이 오면 어떻게 돼?`라고 물어보세요. 마지막으로 `정확히 OK만 출력해줘.`를 보내 `OK`만 나오는지 확인하세요.
+
+### LLM에게 설치 맡기기
+
+로컬 셸을 사용할 수 있는 LLM에 아래 요청을 복사하세요. 설치 범위는 현재 사용자 계정의 Codex입니다. [LLM용 설치 안내](install.md)
+
+```text
+아래 안내를 읽고 현재 사용자 계정의 로컬 Codex에 입갤(ipgael)을 지속 설치해줘.
+https://raw.githubusercontent.com/JeremyDev87/ipgael/main/install.md
+기존 설치와 출처를 먼저 확인하고, 훅 신뢰 검토가 남으면 내가 진행할 위치를 알려줘.
+```
+
+## 사용 가이드
+
+- 훅을 신뢰한 뒤 새 로컬 대화에서 평소처럼 기술 질문이나 작업을 요청하세요. 플러그인 이름을 매번 입력할 필요는 없습니다.
+- 지금 대화에서 잠시 끄려면 `이 대화에서 입갤 말투 꺼줘`, 다시 쓰려면 `이 대화에서 입갤 말투 다시 켜줘`라고 요청하세요. 정책은 대화 문맥에서 이 요청을 확인할 수 있는 동안 따르도록 안내합니다. 문맥 압축 뒤 유지 여부는 미확인입니다.
+- 계속 끄려면 **Plugins**에서 **입갤 · ipgael**을 비활성화하고 새 대화를 시작하세요. 기존 대화에는 앞서 받은 정책이 남을 수 있습니다. [공식 활성화 문서](https://developers.openai.com/plugins/build/plugins#how-local-marketplaces-work)
+
+### AS-IS / TO-BE
+
+아래는 목표 문체를 보여주는 예시입니다. 실제 응답은 모델과 대화 문맥에 따라 달라집니다.
+
+| 상황 | AS-IS | TO-BE |
+| --- | --- | --- |
+| 기술 설명 | Redis 캐시 키에 만료 시간을 설정하면 오래된 값이 계속 남는 것을 막을 수 있습니다. 캐시 어사이드 방식에서는 키가 만료된 뒤 요청이 오면 앱이 원본에서 값을 다시 읽습니다. | Redis 키에 만료 시간 걸어두면 오래된 값이 계속 남는 걸 막을 수 있음. 캐시 어사이드에선 만료 뒤 요청이 오면 앱이 원본에서 다시 읽어. |
+| 진행 보고 | `node --test tests/session-start.test.mjs`를 실행 중입니다. 결과는 아직 나오지 않았습니다. | `node --test tests/session-start.test.mjs` 돌리는 중. 결과는 아직임. |
+| 최종 리뷰 | 응답에 `user`가 없으면 `user.id` 접근에서 예외가 날 수 있습니다. 코드 경로를 확인했으며 실제 재현은 아직입니다. | 응답에 `user` 없으면 `user.id`에서 예외 날 수 있음. 코드 경로는 봤고 재현은 아직임. |
+
+### 정확 출력과 게시용 문구
+
+지정한 언어, 말투와 출력 형식이 입갤의 기본 문체보다 우선합니다. 새 대화에서 아래처럼 확인할 수 있습니다.
+
+| 요청 | 기대 출력 |
+| --- | --- |
+| `{"status":"ok"}`를 JSON으로만 출력해줘. | `{"status":"ok"}` |
+| `console.log("OK");` 한 줄을 펜스 없이 코드만 출력해줘. | `console.log("OK");` |
+| 정확히 OK만 출력해줘. | `OK` |
+
+표의 백틱은 표시용입니다. 기대 응답은 요청한 내용만 포함합니다. 코드, 명령어, 로그, 식별자, 오류 메시지, 직접 인용과 제공한 게시용 원문은 그대로 유지하도록 안내합니다. 새 PR 본문과 커밋 메시지는 독자와 저장소 규칙, 요청 형식에 맞춥니다. PR 초안과 대화 설명을 함께 요청하면 입갤 말투는 초안 밖 설명에만 적용합니다. [말투 정책](policy.md)
+
+## 문제 해결
+
+| 증상 | 확인할 항목 |
+| --- | --- |
+| 마켓플레이스나 플러그인이 안 보임 | `ipgael-local`의 출처와 `ipgael@ipgael-local`의 설치 상태를 [설치 안내](install.md#설치-전-확인)에서 확인하세요. Desktop의 저장소 사본 경로라면 로컬 프로젝트를 연 뒤 앱을 다시 시작하세요. |
+| 설치했는데 말투가 그대로임 | 활성화, 훅의 신뢰 상태, 훅 실행 환경의 `node`, 새 로컬 대화인지 차례대로 확인하세요. 사용자가 별도로 지정한 문체와 형식도 확인하세요. |
+| CLI에서 `plugin add`나 필요한 옵션이 지원되지 않음 | `codex --version`과 명령 도움말로 확인한 뒤 [Desktop 수동 설치](#desktop-수동-설치)로 진행하세요. |
+| 훅을 다시 검토하라는 알림이 나옴 | Codex가 표시한 훅 정의와 실행 스크립트를 다시 확인하세요. 훅이 미신뢰 상태인 동안 일반 Codex 작업을 계속할 수 있습니다. |
 
 ## 동작과 검증
 
-[플러그인 매니페스트](.codex-plugin/plugin.json)는 동기 [`SessionStart` 훅](hooks/hooks.json) 하나를 등록합니다. 시작·재개·초기화·압축·분기에서 [말투 정책](policy.md)을 모델 문맥에 전달합니다. 정책 파일이 없거나 비어 있거나 잘못 인코딩되어 있으면 스크립트는 출력 없이 종료합니다. 말투와 형식 보존은 모델이 정책을 따르는지 실제 응답을 보고 평가합니다.
+[매니페스트](.codex-plugin/plugin.json)의 `SessionStart` 훅이 시작·재개·초기화·압축·분기에서 [말투 정책](policy.md)을 모델 문맥에 전달합니다. 정책 파일에 문제가 생기면 훅 스크립트는 출력 없이 끝납니다. 말투와 정확 출력의 준수 여부는 실제 답변으로 평가합니다. 도구 호출·권한·승인 설정은 Codex의 기존 정책을 따릅니다.
 
-macOS의 격리된 Codex 데스크톱 번들 런타임 `0.167.0-alpha.3.2`에서 로컬 설치와 훅 발견을 확인했습니다. 이 버전은 루트의 이식형 매니페스트를 읽지만 해당 형식의 훅은 로드 대상에서 제외하므로 호환 매니페스트인 `.codex-plugin/plugin.json`을 사용합니다. [해당 버전의 훅 로더](https://github.com/openai/codex/blob/rust-v0.167.0-alpha.3.2/codex-rs/core-plugins/src/loader.rs#L929-L942)
+- **확인** — `node --test tests/session-start.test.mjs`로 훅 전달과 파일 오류 처리를 검사합니다. 격리된 macOS Codex 호스트에서 로컬 설치·훅 발견과 시작·재개·초기화·압축·분기 전달, 미신뢰·비활성 상태, 테스트 응답 전달과 승인 흐름을 확인했습니다.
+- **미확인** — Desktop UI 설치를 처음부터 끝까지 클릭하는 흐름과 실제 모델의 문체, 정확 출력, 대화별 끄기 동작은 실사용 확인이 남았습니다. 이 안내는 로컬 Codex용입니다.
 
-훅 전달 계약과 파일 오류 처리는 `node --test tests/session-start.test.mjs`로 확인할 수 있습니다. 데스크톱 UI를 통한 설치·실행, 재개·압축·분기, 실제 응답·정확 출력·비활성화, 승인·도구 동작과 훅 실행 실패는 호스트 스모크 검증 대상입니다. 이 버전의 대상은 macOS 로컬 데스크톱이며, 확인한 호환성은 실제 검증 환경에 한정됩니다. 훅이 포함된 패키지는 공개 플러그인 디렉터리 등록 대상에서 제외됩니다. [훅 패키징 문서](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks)
-
-OMO Native의 Claude 모델 환경은 후속 검토 대상입니다.
-
-## 참고 프로젝트
-
-[Yessr!](https://github.com/JeremyDev87/yessr)의 공통 응답 정책과 출력 형식 예외 처리에서 아이디어를 얻었습니다.
+사용 가이드의 구성은 [Yessr!](https://github.com/JeremyDev87/yessr)에서 참고했습니다.

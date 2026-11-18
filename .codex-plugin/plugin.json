@@ -6,6 +6,10 @@
   "interface": {
     "displayName": "입갤 · ipgael",
     "shortDescription": "Codex 설명과 진행 보고를 짧은 한국어 반말로",
-    "developerName": "JeremyDev87"
+    "developerName": "JeremyDev87",
+    "defaultPrompt": [
+      "Redis 캐시 만료 시간을 왜 설정해?",
+      "정확히 OK만 출력해줘."
+    ]
   }
 }
