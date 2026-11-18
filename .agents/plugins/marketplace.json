@@ -1,5 +1,8 @@
 {
   "name": "ipgael-local",
+  "interface": {
+    "displayName": "입갤 로컬"
+  },
   "plugins": [
     {
       "name": "ipgael",
