@@ -9,16 +9,20 @@ function readPolicy() {
   }
 }
 
-function buildOutput(policy) {
+function buildOutput(policy, eventName) {
   if (!policy.trim()) return "";
 
   return JSON.stringify({
     hookSpecificOutput: {
-      hookEventName: "SessionStart",
+      hookEventName: eventName,
       additionalContext: policy,
     },
   });
 }
 
-const output = buildOutput(readPolicy());
-if (output) process.stdout.write(`${output}\n`);
+const args = process.argv.slice(2);
+if (args.length === 0 || (args.length === 1 && args[0] === "SubagentStart")) {
+  const eventName = args.length === 0 ? "SessionStart" : "SubagentStart";
+  const output = buildOutput(readPolicy(), eventName);
+  if (output) process.stdout.write(`${output}\n`);
+}
