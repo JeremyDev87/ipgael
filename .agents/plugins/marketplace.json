@@ -1,0 +1,17 @@
+{
+  "name": "ipgael-local",
+  "plugins": [
+    {
+      "name": "ipgael",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
