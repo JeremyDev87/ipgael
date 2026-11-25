@@ -1,11 +1,11 @@
 {
   "name": "ipgael",
-  "version": "0.1.0",
-  "description": "Codex의 일반 응답에 짧고 직설적인 한국어 반말을 적용합니다.",
+  "version": "1.0.0",
+  "description": "Codex의 기술 설명과 진행 보고에 디시인사이드 특유의 어투를 적용합니다.",
   "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "입갤 · ipgael",
-    "shortDescription": "Codex 설명과 진행 보고를 짧은 한국어 반말로",
+    "shortDescription": "Codex 답변을 DC체로",
     "developerName": "JeremyDev87",
     "defaultPrompt": [
       "Redis 캐시 만료 시간을 왜 설정해?",
